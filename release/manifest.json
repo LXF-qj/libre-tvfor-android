@@ -1,0 +1,20 @@
+{
+  "version": "2.27.0",
+  "apkVersionCode": 28,
+  "notes": "在线更新验证版本",
+  "patch": {
+    "urls": [
+      "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
+    ],
+    "sha256": "2a009a7fa70866d0e41985e300ef8bbe342e7c4fcf7e9bd00dee3f5603e581c9",
+    "size": 10351602
+  },
+  "apk": {
+    "versionCode": 28,
+    "urls": [
+      "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/app-release.apk"
+    ],
+    "sha256": "59153bbc30d71bd0074e4509acb67071b294963ba8f407aa9b7d8b049127036e",
+    "size": 26625182
+  }
+}
