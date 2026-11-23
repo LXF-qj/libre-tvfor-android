@@ -30,5 +30,3 @@ patch.zip.bak
 Thumbs.db
 
 # 以下两项体积大（jniLibs 62MB / 产物 36MB），国内上传 GitHub 会超时，仅在 Gitee 仓库保留
-apk/app/src/main/jniLibs/
-release/

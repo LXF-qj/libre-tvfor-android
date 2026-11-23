@@ -49,9 +49,9 @@ cd apk && ../android-build/gradle-8.7/bin/gradle assembleRelease
 
 **签名**：仓库不包含签名私钥（`*.keystore` 已忽略）。自行构建时请在 `apk/app/build.gradle` 里配置自己的 keystore，或改用 debug 签名。
 
-**Node 运行时（`apk/app/src/main/jniLibs/`）**：这部分约 62MB，本仓库未提交（GitHub 版省略以便国内克隆）。构建前请从 [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile/releases) 取 Android arm64 产物，按 `libnode.so` 等文件放入 `apk/app/src/main/jniLibs/arm64-v8a/`。Gitee 镜像仓库（`gitee.com/longxiafan/libre-tvfor-android`）保留了完整副本，也可以直接从那边拷贝。
+**Node 运行时**：`apk/app/src/main/jniLibs/arm64-v8a/libnode.so`（59.6MB）由 [nodejs-mobile](https://github.com/nodejs-mobile/nodejs-mobile) 提供，已包含在仓库中。若需替换版本，取对应 arm64 产物覆盖该目录即可。
 
-**发布产物（`release/`）**：热更包与安装包体积大，同样只在 Gitee 仓库保留；GitHub 版请从 Gitee 下载或自行构建。
+**发布产物**：`release/` 下是热更包、安装包与更新清单，与仓库中的源码版本对应。
 
 ## 在线更新
 
