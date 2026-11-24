@@ -1,13 +1,13 @@
 {
-  "version": "2.28.5",
+  "version": "2.28.6",
   "apkVersionCode": 29,
-  "notes": "降低弹幕密度、关闭重叠避让，修复设置面板卡死",
+  "notes": "显示区域改用插件默认值，面板调整一次即生效",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "5799dd4fea073fdd8691005de2e781d965413535adca44497fac3ef8cf4e64e7",
-    "size": 10363132
+    "sha256": "6270174b3b29443d44b955de6d43b73441dda8c28ac0930350310f1b666712d7",
+    "size": 10363206
   },
   "apk": {
     "versionCode": 29,
