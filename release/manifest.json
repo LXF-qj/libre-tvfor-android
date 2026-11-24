@@ -1,13 +1,13 @@
 {
-  "version": "2.29.6",
+  "version": "2.29.7",
   "apkVersionCode": 30,
-  "notes": "继续观看按片名合并，显示看过几集",
+  "notes": "切换资源时进度结转条件放宽，不再漏带",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "7611ba6663dfa02ab91289cd072dda6089d1961909da5a4ecdee06b67776dae3",
-    "size": 10380397
+    "sha256": "e2e475e5a65a060721c55d43a77950b87a597d84146b3d08028ce679814b2119",
+    "size": 10380420
   },
   "apk": {
     "versionCode": 30,
