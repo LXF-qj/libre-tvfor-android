@@ -1,13 +1,13 @@
 {
-  "version": "2.28.2",
+  "version": "2.28.3",
   "apkVersionCode": 29,
-  "notes": "软件更新只留「检查更新」，不再暴露更新源配置",
+  "notes": "调整弹幕偏移后立即重排，不用等下一段",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "c75e99857a5e21efcdc8cc343dca287d591c01f61e253f2e0a8ec6261cac678a",
-    "size": 10362931
+    "sha256": "3e03935ccdbc154d3c5334b98434bd42d6d46855855434701b28e80b5e1327f4",
+    "size": 10363026
   },
   "apk": {
     "versionCode": 29,
