@@ -1,13 +1,13 @@
 {
-  "version": "2.29.1",
+  "version": "2.29.2",
   "apkVersionCode": 30,
-  "notes": "存储页可直接清理视频缓存；缓存上限默认降到 500MB",
+  "notes": "源失败自动弹换源；换源按集号对齐；首页新增继续观看",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "f46d804870a241161c3d55679726ada9d55764fdaf96a483fe2bbbfcdf95caee",
-    "size": 10378054
+    "sha256": "f90eddcf8ac2ea47479292e041fba3b048c608e3ad7ea81990fec79ffbd647ef",
+    "size": 10379801
   },
   "apk": {
     "versionCode": 30,
