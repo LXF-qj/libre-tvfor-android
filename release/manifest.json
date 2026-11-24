@@ -1,13 +1,13 @@
 {
-  "version": "2.28.7",
+  "version": "2.28.8",
   "apkVersionCode": 29,
   "notes": "回滚弹幕与显示区域改动，恢复播放",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "6270174b3b29443d44b955de6d43b73441dda8c28ac0930350310f1b666712d7",
-    "size": 10363206
+    "sha256": "ab098bd88579699918e482dbda6cdb44c1ea6c36edf12135206415c8616a344e",
+    "size": 10363135
   },
   "apk": {
     "versionCode": 29,
