@@ -1,5 +1,5 @@
 {
-  "version": "2.29.3",
+  "version": "2.29.4",
   "apkVersionCode": 30,
   "notes": "换源时自动结转观看进度到同一集",
   "patch": {
