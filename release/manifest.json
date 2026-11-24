@@ -1,13 +1,13 @@
 {
-  "version": "2.29.8",
+  "version": "2.29.9",
   "apkVersionCode": 30,
-  "notes": "诊断：换源迁移结果会以提示显示",
+  "notes": "换源匹配收紧：衍生片不再混入换源面板",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "30975b72f172ee69b55f5f400bdfcfab39d32aaea8b243e5ee194478cfaba944",
-    "size": 10380531
+    "sha256": "f5ce63c03258147b68b9ec4799dc076180fa107a78117b55063e56db5c0c4e0a",
+    "size": 10380767
   },
   "apk": {
     "versionCode": 30,
