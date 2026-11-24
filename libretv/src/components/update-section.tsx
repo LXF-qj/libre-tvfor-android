@@ -1,6 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  DEFAULT_MANIFEST_URL,
+  DISMISSED_VERSION_KEY,
+  UPDATE_URL_KEY,
+  getNativeBridge,
+  isNewerVersion,
+} from '@/lib/update-config';
 
 /**
  * 软件更新。
@@ -26,24 +33,19 @@ interface CheckResult {
   needApk?: boolean;
 }
 
-interface NativeBridge {
-  versionCode?: () => number;
-  restartApp?: () => void;
-  installApk?: () => void;
+interface DownloadProgress {
+  active: boolean;
+  kind: string;
+  received: number;
+  total: number;
+  speed: number;
+  error: string;
 }
 
-const STORAGE_KEY = 'libretv.updateUrl';
-/** 默认清单地址：内置后用户不用手填，换托管商时改这里或就地编辑输入框均可 */
-const DEFAULT_MANIFEST_URL = 'https://gitee.com/longxiafan/libre-tvfor-android/raw/master/manifest.json';
 
 function formatSize(bytes?: number): string {
   if (!bytes) return '';
   return bytes > 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)}MB` : `${Math.round(bytes / 1024)}KB`;
-}
-
-function getNative(): NativeBridge | undefined {
-  if (typeof window === 'undefined') return undefined;
-  return (window as unknown as { LibreTVAndroid?: NativeBridge }).LibreTVAndroid;
 }
 
 export function UpdateSection() {
@@ -55,15 +57,39 @@ export function UpdateSection() {
   const [error, setError] = useState('');
   const [ready, setReady] = useState<'patch' | 'apk' | null>(null);
   const [inApp, setInApp] = useState(false);
+  const [progress, setProgress] = useState<DownloadProgress | null>(null);
 
   useEffect(() => {
-    setUrl(localStorage.getItem(STORAGE_KEY) || DEFAULT_MANIFEST_URL);
-    setInApp(!!getNative());
+    setUrl(localStorage.getItem(UPDATE_URL_KEY) || DEFAULT_MANIFEST_URL);
+    setInApp(!!getNativeBridge());
   }, []);
+
+  // 下载期间每 500ms 拉一次进度：10MB 的包要下十几秒，没进度条用户会以为卡死
+  useEffect(() => {
+    if (!busy) {
+      setProgress(null);
+      return;
+    }
+    let alive = true;
+    const tick = async () => {
+      try {
+        const res = await fetch('/api/update/progress');
+        if (res.ok && alive) setProgress((await res.json()) as DownloadProgress);
+      } catch {
+        /* 轮询失败不影响主流程 */
+      }
+    };
+    const timer = setInterval(tick, 500);
+    tick();
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [busy]);
 
   const saveUrl = (value: string) => {
     setUrl(value);
-    localStorage.setItem(STORAGE_KEY, value.trim());
+    localStorage.setItem(UPDATE_URL_KEY, value.trim());
   };
 
   const check = async () => {
@@ -78,7 +104,7 @@ export function UpdateSection() {
     setReady(null);
     setMessage('');
     try {
-      const code = getNative()?.versionCode?.() ?? 0;
+      const code = getNativeBridge()?.versionCode?.() ?? 0;
       // 注意路径是 /api/update（路由文件 api/update/route.ts），不是 /api/update/check
       const res = await fetch(`/api/update?url=${encodeURIComponent(target)}&apkVersionCode=${code}`);
       const contentType = res.headers.get('content-type') || '';
@@ -88,7 +114,7 @@ export function UpdateSection() {
       const data = (await res.json()) as CheckResult & { error?: string };
       if (!res.ok || data.error) throw new Error(data.error || '检查失败');
       setResult(data);
-      if (data.latest === data.current && !data.needApk) setMessage('已经是最新版本');
+      if (!data.needApk && !isNewerVersion(data.latest, data.current)) setMessage('已经是最新版本');
     } catch (err) {
       setError(err instanceof Error ? err.message : '检查失败');
     } finally {
@@ -101,7 +127,7 @@ export function UpdateSection() {
     if (!asset) return;
     setBusy(true);
     setError('');
-    setMessage(kind === 'patch' ? '正在下载更新包…' : '正在下载安装包，请保持网络连接…');
+    setMessage('');
     try {
       const res = await fetch('/api/update', {
         method: 'POST',
@@ -110,6 +136,8 @@ export function UpdateSection() {
       });
       const data = (await res.json()) as { ok?: boolean; error?: string; files?: number; size?: number };
       if (!res.ok || data.error) throw new Error(data.error || '更新失败');
+      // 装完就把「忽略」标记清掉，免得下次同版本号还被压着
+      localStorage.removeItem(DISMISSED_VERSION_KEY);
       setReady(kind);
       setMessage(
         kind === 'patch'
@@ -124,8 +152,8 @@ export function UpdateSection() {
     }
   };
 
-  const restart = () => getNative()?.restartApp?.();
-  const install = () => getNative()?.installApk?.();
+  const restart = () => getNativeBridge()?.restartApp?.();
+  const install = () => getNativeBridge()?.installApk?.();
 
   return (
     <section>
@@ -151,7 +179,22 @@ export function UpdateSection() {
       {error && <p className="mt-2 text-xs text-danger">{error}</p>}
       {message && <p className="mt-2 text-xs text-accent">{message}</p>}
 
-      {result && (result.needApk || result.latest !== result.current) && (
+      {busy && progress && progress.total > 0 && (
+        <div className="mt-2">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-line">
+            <div
+              className="h-full rounded-full bg-accent transition-all duration-300"
+              style={{ width: `${Math.min(100, (progress.received / progress.total) * 100)}%` }}
+            />
+          </div>
+          <p className="mt-1 text-[11px] text-faint tabular-nums">
+            {(progress.received / 1048576).toFixed(1)} / {(progress.total / 1048576).toFixed(1)} MB
+            {progress.speed > 0 && ` · ${(progress.speed / 1048576).toFixed(1)} MB/s`}
+          </p>
+        </div>
+      )}
+
+      {result && (result.needApk || isNewerVersion(result.latest, result.current)) && (
         <div className="mt-3 rounded-lg border border-line bg-chip/30 p-3">
           <div className="flex items-center gap-2 mb-1">
             <span className="tag bg-accent/15 text-accent">新版本</span>

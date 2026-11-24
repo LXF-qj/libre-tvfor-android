@@ -80,8 +80,19 @@ export interface DanmakuBinding {
   /** B站侧的标题，面板里回显用（可能与本片名不同，如带了副标题） */
   title: string;
   typeName?: string;
-  /** 弹幕时间偏移（秒）：正数 = 弹幕整体延后出现，用于对齐两边片头长度差 */
+  /** 全局默认偏移（秒）：正数 = 弹幕延后出现，套用到所有集 */
   offset: number;
+  /**
+   * 单集覆盖（key 是 0 基集号）。
+   * 同一部剧每集片头长短可能不同（有的集带前情提要），只调一集不该把其余集一起带偏。
+   */
+  episodeOffsets?: Record<number, number>;
+}
+
+/** 某一集实际生效的偏移：单集覆盖优先，否则用全局默认 */
+export function effectiveDanmakuOffset(binding: DanmakuBinding | undefined, episode: number): number {
+  if (!binding) return 0;
+  return binding.episodeOffsets?.[episode] ?? binding.offset;
 }
 
 /** 弹幕绑定的索引键：片名去掉空白与零宽字符后转小写 */
@@ -285,7 +296,10 @@ interface AppState extends AppSettings {
   danmakuEnabled: boolean;
   bindDanmaku: (title: string, binding: Omit<DanmakuBinding, 'offset'>) => void;
   unbindDanmaku: (title: string) => void;
-  setDanmakuOffset: (title: string, offset: number) => void;
+  /** episode 省略 = 改全局默认；给了集号 = 只改这一集 */
+  setDanmakuOffset: (title: string, offset: number, episode?: number) => void;
+  /** 清掉单集覆盖，退回全局默认 */
+  clearDanmakuEpisodeOffset: (title: string, episode: number) => void;
   setDanmakuEnabled: (on: boolean) => void;
   addCustomApi: (api: Omit<SourceConfig, 'key'> & { key?: string }) => void;
   updateCustomApi: (key: string, patch: Partial<SourceConfig>) => void;
@@ -535,16 +549,25 @@ export const useAppStore = create<AppState>()(
         delete next[key];
         set({ danmakuBindings: next });
       },
-      setDanmakuOffset: (title, offset) => {
+      setDanmakuOffset: (title, offset, episode) => {
         const key = danmakuKey(title);
         const current = get().danmakuBindings[key];
         if (!current) return;
-        set({
-          danmakuBindings: {
-            ...get().danmakuBindings,
-            [key]: { ...current, offset: Math.round(Math.max(-300, Math.min(300, offset)) * 10) / 10 },
-          },
-        });
+        // 0.5 秒一档：滑块拖出来的两位小数太碎，整数又不够准；同时挡掉越界值
+        const value = Math.round(Math.max(-300, Math.min(300, offset)) * 2) / 2;
+        const next =
+          episode === undefined
+            ? { ...current, offset: value }
+            : { ...current, episodeOffsets: { ...current.episodeOffsets, [episode]: value } };
+        set({ danmakuBindings: { ...get().danmakuBindings, [key]: next } });
+      },
+      clearDanmakuEpisodeOffset: (title, episode) => {
+        const key = danmakuKey(title);
+        const current = get().danmakuBindings[key];
+        if (!current?.episodeOffsets || !(episode in current.episodeOffsets)) return;
+        const next = { ...current.episodeOffsets };
+        delete next[episode];
+        set({ danmakuBindings: { ...get().danmakuBindings, [key]: { ...current, episodeOffsets: next } } });
       },
       setDanmakuEnabled: (on) => set({ danmakuEnabled: on }),
 

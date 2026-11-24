@@ -25,6 +25,46 @@ const IDLE_TIMEOUT = 15000;
 /** 更新时不覆盖的路径：用户数据和配置必须保住 */
 const PRESERVED = ['data/', 'data\\', '.env', 'patch.zip', 'logs/'];
 
+/**
+ * 下载进度。一次只跑一个下载，所以用一个模块级单例；
+ * 前端每 500ms 轮询它来画进度条——10MB 的包下几分钟没反馈，用户会以为卡死。
+ */
+export interface DownloadState {
+  active: boolean;
+  kind: 'patch' | 'apk' | '';
+  received: number;
+  total: number;
+  /** 字节/秒，按已用时间均摊，不追求瞬时精度 */
+  speed: number;
+  error: string;
+}
+
+const progress: DownloadState = { active: false, kind: '', received: 0, total: 0, speed: 0, error: '' };
+let progressStartedAt = 0;
+
+export function getDownloadState(): DownloadState {
+  if (!progress.active) return { ...progress };
+  const elapsed = (Date.now() - progressStartedAt) / 1000;
+  return {
+    ...progress,
+    speed: elapsed > 0.5 ? Math.round(progress.received / elapsed) : 0,
+  };
+}
+
+function resetProgress(kind: 'patch' | 'apk', total: number, received = 0) {
+  progress.active = true;
+  progress.kind = kind;
+  progress.total = total;
+  progress.received = received;
+  progress.error = '';
+  progressStartedAt = Date.now();
+}
+
+function failProgress(message: string) {
+  progress.active = false;
+  progress.error = message;
+}
+
 export interface UpdateAsset {
   /** 多个镜像，按顺序尝试 */
   urls: string[];
@@ -138,6 +178,10 @@ function downloadOnce(url: string, dest: string): Promise<void> {
         const append = res.status === 206 && existing > 0;
         const ws = createWriteStream(dest, { flags: append ? 'a' : 'w' });
         const stream = res.stream as NodeJS.ReadableStream & { pipe: (d: unknown) => void };
+        // 累计已收字节，供前端轮询显示进度
+        stream.on('data', (chunk: Buffer) => {
+          progress.received += chunk.length;
+        });
         stream.pipe(ws);
         ws.on('finish', () => resolve());
         ws.on('error', reject);
@@ -150,6 +194,8 @@ function downloadOnce(url: string, dest: string): Promise<void> {
 /** 依次尝试多个镜像；每个源失败就保留已下载的部分，交给下一个源续传 */
 async function downloadFromMirrors(asset: UpdateAsset, dest: string): Promise<void> {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
+  // 换源续传时，已下载的部分不该重复计入
+  progress.received = fs.existsSync(dest) ? fs.statSync(dest).size : 0;
   const errors: string[] = [];
   for (const url of asset.urls) {
     try {
@@ -204,7 +250,13 @@ export async function checkUpdate(manifestUrl: string, apkVersionCode: number): 
 export async function applyPatch(asset: UpdateAsset): Promise<{ files: number; skipped: number }> {
   const root = process.cwd();
   const tmp = path.join(root, 'data', 'update-patch.zip');
-  await downloadFromMirrors(asset, tmp);
+  resetProgress('patch', asset.size ?? 0);
+  try {
+    await downloadFromMirrors(asset, tmp);
+  } catch (err) {
+    failProgress(err instanceof Error ? err.message : '下载失败');
+    throw err;
+  }
 
   const zip = new AdmZip(tmp);
   let files = 0;
@@ -231,12 +283,20 @@ export async function applyPatch(asset: UpdateAsset): Promise<{ files: number; s
     files += 1;
   }
   fs.rmSync(tmp, { force: true });
+  progress.active = false;
   return { files, skipped };
 }
 
 /** 下载 APK 到外部目录（Node 有写权限，Java 侧用 FileProvider 交给系统安装器） */
 export async function downloadApk(asset: UpdateAsset, targetPath: string): Promise<{ path: string; size: number }> {
-  await downloadFromMirrors(asset, targetPath);
+  resetProgress('apk', asset.size ?? 0);
+  try {
+    await downloadFromMirrors(asset, targetPath);
+  } catch (err) {
+    failProgress(err instanceof Error ? err.message : '下载失败');
+    throw err;
+  }
   const size = fs.statSync(targetPath).size;
+  progress.active = false;
   return { path: targetPath, size };
 }

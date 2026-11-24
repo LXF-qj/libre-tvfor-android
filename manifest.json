@@ -1,20 +1,20 @@
 {
-  "version": "2.27.0",
-  "apkVersionCode": 28,
-  "notes": "在线更新验证版本",
+  "version": "2.28.0",
+  "apkVersionCode": 29,
+  "notes": "启动自动检查更新、下载进度条；弹幕偏移按集记忆 + 滑块校准",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "2a009a7fa70866d0e41985e300ef8bbe342e7c4fcf7e9bd00dee3f5603e581c9",
-    "size": 10351602
+    "sha256": "9d1da99f95b87e52ca0f2ae74bd8cba6267f8cc63f25ae6b4f4a8867011ecfbf",
+    "size": 10363461
   },
   "apk": {
-    "versionCode": 28,
+    "versionCode": 29,
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/app-release.apk"
     ],
-    "sha256": "59153bbc30d71bd0074e4509acb67071b294963ba8f407aa9b7d8b049127036e",
-    "size": 26625182
+    "sha256": "b9674f0ace0f86fc6d1e9c6039ea564eeb3379c969f83b13087a922333b63413",
+    "size": 26636982
   }
 }

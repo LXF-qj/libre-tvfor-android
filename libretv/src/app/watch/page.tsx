@@ -146,6 +146,9 @@ function WatchContent() {
     () => skipMarkKey(videoTitle, skipMarkFallback),
     [videoTitle, skipMarkFallback]
   );
+  /** 本集单独调过的偏移；没有就是 undefined，退回全局默认 */
+  const episodeOffset = danmakuBound?.episodeOffsets?.[currentIndex];
+  const activeOffset = episodeOffset ?? danmakuBound?.offset ?? 0;
   const skipMark = store.skipMarks[markKey];
   const markedCount = skipMark?.segments.length ?? 0;
 
@@ -436,29 +439,61 @@ function WatchContent() {
             </div>
 
             {/*
-              弹幕对齐：B站 片源和本片源的片头长度常差几秒到几十秒，弹幕会整体错位。
-              以前只能退回详情页改，现在播放中直接在这儿前后平移，改完立刻重排。
+              弹幕对齐：B站 片源与本片源的片头长度常差几秒到几十秒，弹幕会整体错位。
+              本集调过的值单独记在 episodeOffsets 里，不会把其它集一起带偏。
             */}
             {alignPanelOpen && danmakuBound && (
-              <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-chip/30 px-3 py-2.5">
-                <span className="text-xs text-faint">弹幕整体</span>
-                {[-5, -1, 1, 5].map((step) => (
+              <div className="mt-3 rounded-lg border border-line bg-chip/30 px-3 py-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs text-faint">弹幕对齐</span>
+                  <span className="text-[11px] text-faint">
+                    第 {currentIndex + 1} 集 · {episodeOffset !== undefined ? '仅本集' : '全局默认'}
+                  </span>
+                  <span className="ml-auto text-sm font-medium tabular-nums text-content">
+                    {activeOffset > 0 ? '+' : ''}
+                    {activeOffset.toFixed(1)}s
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={-30}
+                  max={30}
+                  step={0.5}
+                  value={activeOffset}
+                  onChange={(e) => store.setDanmakuOffset(videoTitle, Number(e.target.value), currentIndex)}
+                  className="w-full accent-[rgb(var(--c-accent))]"
+                  aria-label="弹幕时间偏移"
+                />
+                <div className="flex flex-wrap items-center gap-2 mt-2">
                   <button
-                    key={step}
                     className="btn-ghost btn-sm"
-                    onClick={() => store.setDanmakuOffset(videoTitle, danmakuBound.offset + step)}
+                    onClick={() => store.setDanmakuOffset(videoTitle, activeOffset - 1, currentIndex)}
                   >
-                    {step > 0 ? `+${step}s` : `${step}s`}
+                    -1s
                   </button>
-                ))}
-                <span className="text-xs tabular-nums text-content">
-                  {danmakuBound.offset > 0 ? '+' : ''}
-                  {danmakuBound.offset}s
-                </span>
-                <button className="btn-ghost btn-sm" onClick={() => store.setDanmakuOffset(videoTitle, 0)}>
-                  归零
-                </button>
-                <span className="text-[11px] text-faint">正数 = 弹幕延后出现</span>
+                  <button
+                    className="btn-ghost btn-sm"
+                    onClick={() => store.setDanmakuOffset(videoTitle, activeOffset + 1, currentIndex)}
+                  >
+                    +1s
+                  </button>
+                  <button
+                    className="btn-ghost btn-sm"
+                    onClick={() => store.setDanmakuOffset(videoTitle, activeOffset)}
+                    title="把当前值设为整部剧的默认，其它集跟着用"
+                  >
+                    套用到全部集
+                  </button>
+                  {episodeOffset !== undefined && (
+                    <button
+                      className="btn-ghost btn-sm"
+                      onClick={() => store.clearDanmakuEpisodeOffset(videoTitle, currentIndex)}
+                    >
+                      恢复默认
+                    </button>
+                  )}
+                  <span className="text-[11px] text-faint">正数 = 弹幕延后出现</span>
+                </div>
               </div>
             )}
 

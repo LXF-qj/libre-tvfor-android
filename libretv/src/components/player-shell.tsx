@@ -15,7 +15,7 @@ import { CONTROL_SHOW_CLASS, syncMiniProgressBar } from '@/lib/mini-progress-bar
 import { loadCacheSettings } from '@/lib/video-cache';
 import { cn, formatTime } from '@/lib/utils';
 import { prefersTouchPointer } from '@/lib/touch-pointer';
-import { danmakuKey, useAppStore } from '@/lib/store';
+import { danmakuKey, effectiveDanmakuOffset, useAppStore } from '@/lib/store';
 import { api } from '@/lib/client-api';
 import artplayerPluginDanmuku from 'artplayer-plugin-danmuku';
 import {
@@ -1214,7 +1214,7 @@ export function PlayerShell({
         const mapped = res.list
           .map((d) => ({
             text: d.text,
-            time: Math.round((d.time + binding.offset) * 10) / 10,
+            time: Math.round((d.time + effectiveDanmakuOffset(binding, Math.max(0, episodeIndex))) * 10) / 10,
             mode: d.type as 0 | 1 | 2,
             color: d.color,
           }))

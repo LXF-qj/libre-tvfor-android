@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
     private static final String START_URL = "http://" + LOCAL_HOST + ":" + PORT + "/";
 
     /** 每次更新 assets 里的前端产物时 +1，触发设备端重新解压 */
-    private static final int EXTRACT_VERSION = 35;
+    private static final int EXTRACT_VERSION = 36;
 
     private WebView webView;
     private TextView statusText;
