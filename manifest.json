@@ -1,13 +1,13 @@
 {
-  "version": "2.29.5",
+  "version": "2.29.6",
   "apkVersionCode": 30,
-  "notes": "同片名进度兜底：从任何入口进片都能带上其他源的进度",
+  "notes": "继续观看按片名合并，显示看过几集",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "ff8e0cde78ee66425409c702cc925d187506c69c73cedfc491b949fc35552ea4",
-    "size": 10380290
+    "sha256": "7611ba6663dfa02ab91289cd072dda6089d1961909da5a4ecdee06b67776dae3",
+    "size": 10380397
   },
   "apk": {
     "versionCode": 30,
