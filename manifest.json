@@ -1,13 +1,13 @@
 {
-  "version": "2.28.0",
+  "version": "2.28.2",
   "apkVersionCode": 29,
-  "notes": "启动自动检查更新、下载进度条；弹幕偏移按集记忆 + 滑块校准",
+  "notes": "软件更新只留「检查更新」，不再暴露更新源配置",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "9d1da99f95b87e52ca0f2ae74bd8cba6267f8cc63f25ae6b4f4a8867011ecfbf",
-    "size": 10363461
+    "sha256": "c75e99857a5e21efcdc8cc343dca287d591c01f61e253f2e0a8ec6261cac678a",
+    "size": 10362931
   },
   "apk": {
     "versionCode": 29,
