@@ -6,8 +6,8 @@
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "f90eddcf8ac2ea47479292e041fba3b048c608e3ad7ea81990fec79ffbd647ef",
-    "size": 10379801
+    "sha256": "68aa5d25a423d359ad6b3ecad88b22626b400cfd167b97e9ff684a55889725cd",
+    "size": 10380148
   },
   "apk": {
     "versionCode": 30,
