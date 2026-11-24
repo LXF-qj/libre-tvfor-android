@@ -1,7 +1,7 @@
 {
-  "version": "2.28.6",
+  "version": "2.28.7",
   "apkVersionCode": 29,
-  "notes": "显示区域改用插件默认值，面板调整一次即生效",
+  "notes": "回滚弹幕与显示区域改动，恢复播放",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
