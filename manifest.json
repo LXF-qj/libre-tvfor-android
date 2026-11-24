@@ -1,7 +1,7 @@
 {
-  "version": "2.29.2",
+  "version": "2.29.3",
   "apkVersionCode": 30,
-  "notes": "源失败自动弹换源；换源按集号对齐；首页新增继续观看",
+  "notes": "换源时自动结转观看进度到同一集",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
