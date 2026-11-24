@@ -1,13 +1,13 @@
 {
-  "version": "2.28.3",
+  "version": "2.28.4",
   "apkVersionCode": 29,
-  "notes": "调整弹幕偏移后立即重排，不用等下一段",
+  "notes": "滑块改为松手生效，拖动不再卡死；仅偏移变化时重排弹幕",
   "patch": {
     "urls": [
       "https://gitee.com/longxiafan/libre-tvfor-android/raw/master/release/patch.zip"
     ],
-    "sha256": "3e03935ccdbc154d3c5334b98434bd42d6d46855855434701b28e80b5e1327f4",
-    "size": 10363026
+    "sha256": "3bf38dc9721cfec24902cfd99f0465be4348f90fb95840e264adeb2b807f5aad",
+    "size": 10363146
   },
   "apk": {
     "versionCode": 29,
